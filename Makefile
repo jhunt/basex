@@ -17,6 +17,10 @@ bxe: base16.o base32.o base64.o
 bxe.o: util/bxe.c
 	$(CC) -I. -c -o $@ $+
 
+bxl: base16.o base32.o base64.o
+bxl.o: util/bxl.c
+	$(CC) -I. -c -o $@ $+
+
 clean:
 	rm -f *.o
 	rm -f $(TESTS)
