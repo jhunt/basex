@@ -168,6 +168,11 @@ b32d(char *dst, const char *src, size_t inlen)
 	is(buf, in, "[" out "] in base32 is [" in "]"); \
 } while (0)
 
+#define b32_uses(e,d) do {\
+	cmp_ok(b32elen(e), "==", d, "base-32 needs %d bytes to encode %d bytes", e, d); \
+	cmp_ok(b32dlen(d), "==", e, "base-32 needs %d bytes to decode %d bytes", d, e); \
+} while (0)
+
 #define b32_noop(buf, s) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b32e(buf, s, strlen(s)) == 0, "b32e(" s ") should succeed"); \
@@ -177,6 +182,9 @@ b32d(char *dst, const char *src, size_t inlen)
 
 TESTS {
 	char buf[256];
+
+	b32_uses(1,2); b32_uses(2,4); b32_uses(3,5);
+	b32_uses(4,7); /* and repeat! */
 
 	b32_is(buf, "f",      "co");
 	b32_is(buf, "fo",     "cpng");

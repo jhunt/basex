@@ -133,6 +133,11 @@ b64d(char *dst, const char *src, size_t inlen)
 	is(buf, in, "[" out "] in base64 is [" in "]"); \
 } while (0)
 
+#define b64_uses(e,d) do {\
+	cmp_ok(b64elen(e), "==", d, "base-64 needs %d bytes to encode %d bytes", e, d); \
+	cmp_ok(b64dlen(d), "==", e, "base-64 needs %d bytes to decode %d bytes", d, e); \
+} while (0)
+
 #define b64_noop(buf, s) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b64e(buf, s, strlen(s)) == 0, "b64e(" s ") should succeed"); \
@@ -142,6 +147,9 @@ b64d(char *dst, const char *src, size_t inlen)
 
 TESTS {
 	char buf[256];
+
+	b64_uses(1,2); b64_uses(2,3); b64_uses(3,4);
+	b64_uses(4,6); /* and repeat! */
 
 	b64_is(buf, "f",      "Zg");
 	b64_is(buf, "fo",     "Zm8");

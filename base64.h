@@ -6,12 +6,12 @@
 
 static inline size_t
 b64elen(size_t dlen) {
-	return 8 * (dlen / 5) + (dlen % 5);
+	return (8*dlen) / 6 + (8*dlen % 6 == 0 ? 0 : 1);
 }
 
 static inline size_t
 b64dlen(size_t elen) {
-	return (elen / 8) * 5 + (elen % 8);
+	return (6*elen) / 8;
 }
 
 void b64a(const char *alpha);

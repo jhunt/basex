@@ -95,6 +95,11 @@ b16d(char *dst, const char *src, size_t inlen)
 	is(buf, in, "[" out "] in base16 is [" in "]"); \
 } while (0)
 
+#define b16_uses(e,d) do {\
+	cmp_ok(b16elen(e), "==", d, "base-16 needs %d bytes to encode %d bytes", e, d); \
+	cmp_ok(b16dlen(d), "==", e, "base-16 needs %d bytes to decode %d bytes", d, e); \
+} while (0)
+
 #define b16_noop(buf, s) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b16e(buf, s, strlen(s)) == 0, "b16e(" s ") should succeed"); \
@@ -104,6 +109,12 @@ b16d(char *dst, const char *src, size_t inlen)
 
 TESTS {
 	char buf[256];
+
+	b16_uses(1,2); b16_uses(2,4); b16_uses(3,6);
+	b16_uses(4,8); /* you get the idea */
+
+	cmp_ok(b16elen(7), "==", 14, "base-16 uses double the space for encoding");
+	cmp_ok(b16dlen(14), "==", 7, "base-16 uses half the space for decoding");
 
 	b16_is(buf, "f",      "66");
 	b16_is(buf, "fo",     "666f");
