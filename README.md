@@ -1,9 +1,10 @@
-base{16,32,64}
-==============
+base{16,32,64,85}
+=================
 
 This repository contains standalone, unencumbered definitions of
 the base-16, base-32, and base-64 binary-to-text encoding
-algorithms, as outlined in [RFC 4648][1].
+algorithms, as outlined in [RFC 4648][1].  Experimental support
+for Ascii85 (base-85 with some caveats) is also included.
 
 Usage
 -----
