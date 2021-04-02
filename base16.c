@@ -64,8 +64,6 @@ b16e(char *dst, const char *src, size_t inlen)
 		*dst++ = ALPHA[ ( src[0] >> 4 ) & MASK];
 		*dst++ = ALPHA[ ( src[0]      ) & MASK];
 	}
-
-	*dst = '\0';
 	return 0;
 }
 
@@ -78,8 +76,6 @@ b16d(char *dst, const char *src, size_t inlen)
 	for (; inlen >= 2; src += 2, inlen -= 2) {
 		*dst++ = (LOOKUP[src[0]] << 4) | (LOOKUP[src[1]]);
 	}
-
-	*dst = '\0';
 	return 0;
 }
 
@@ -89,9 +85,12 @@ b16d(char *dst, const char *src, size_t inlen)
 #define b16_is(buf, in, out) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b16e(buf, in, strlen(in)) == 0, "b16e(" in ") should succeed"); \
+	buf[b16elen(strlen(in))] = '\0'; \
 	is(buf, out, "[" in "] is [" out "] in base16"); \
+	\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b16d(buf, out, strlen(out)) == 0, "b16d(" out ") should succeed"); \
+	buf[b16dlen(strlen(out))] = '\0'; \
 	is(buf, in, "[" out "] in base16 is [" in "]"); \
 } while (0)
 
@@ -103,7 +102,8 @@ b16d(char *dst, const char *src, size_t inlen)
 #define b16_noop(buf, s) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b16e(buf, s, strlen(s)) == 0, "b16e(" s ") should succeed"); \
-	ok(b16d(buf, buf, strlen(buf)) == 0, "b16d(b16e(" s ")) should also succeed"); \
+	ok(b16d(buf, buf, b16elen(strlen(s))) == 0, "b16d(b16e(" s ")) should also succeed"); \
+	buf[b16dlen(b16elen(strlen(s)))] = '\0'; \
 	is(buf, s, "D(E(s)) should equal (s)"); \
 } while (0)
 

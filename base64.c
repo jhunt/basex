@@ -98,8 +98,6 @@ b64e(char *dst, const char *src, size_t inlen)
 	if (inlen >= 3) {
 		*dst++ = ALPHA[ (                 src[2]      ) & MASK];
 	}
-
-	*dst = '\0';
 	return 0;
 }
 
@@ -116,8 +114,6 @@ b64d(char *dst, const char *src, size_t inlen)
 	}
 	if (inlen >= 2) *dst++ = (LOOKUP[src[0]] << 2) | (LOOKUP[src[1]] >> 4);
 	if (inlen >= 3) *dst++ = (LOOKUP[src[1]] << 4) | (LOOKUP[src[2]] >> 2);
-
-	*dst = '\0';
 	return 0;
 }
 
@@ -127,9 +123,12 @@ b64d(char *dst, const char *src, size_t inlen)
 #define b64_is(buf, in, out) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b64e(buf, in, strlen(in)) == 0, "b64e(" in ") should succeed"); \
+	buf[b64elen(strlen(in))] = '\0'; \
 	is(buf, out, "[" in "] is [" out "] in base64"); \
+	\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b64d(buf, out, strlen(out)) == 0, "b64d(" out ") should succeed"); \
+	buf[b64dlen(strlen(out))] = '\0'; \
 	is(buf, in, "[" out "] in base64 is [" in "]"); \
 } while (0)
 
@@ -142,6 +141,7 @@ b64d(char *dst, const char *src, size_t inlen)
 	memset(buf, 0, sizeof(buf)); \
 	ok(b64e(buf, s, strlen(s)) == 0, "b64e(" s ") should succeed"); \
 	ok(b64d(buf, buf, strlen(buf)) == 0, "b64d(b64e(" s ")) should also succeed"); \
+	buf[b64dlen(b64elen(strlen(s)))] = '\0'; \
 	is(buf, s, "D(E(s)) should equal (s)"); \
 } while (0)
 

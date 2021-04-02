@@ -127,8 +127,6 @@ b32e(char *dst, const char *src, size_t inlen)
 		*dst++ = ALPHA[ (                (buf[3] >> 2)) & MASK];
 		*dst++ = ALPHA[ ((buf[3] << 3) | (buf[4] >> 5)) & MASK];
 	}
-
-	*dst = '\0';
 	return 0;
 }
 
@@ -151,8 +149,6 @@ b32d(char *dst, const char *src, size_t inlen)
 	if (inlen >= 4) *dst++ = (LOOKUP[src[1]] << 6) | (LOOKUP[src[2]] << 1) | (LOOKUP[src[3]] >> 4);
 	if (inlen >= 5) *dst++ = (LOOKUP[src[3]] << 4) | (LOOKUP[src[4]] >> 1);
 	if (inlen >= 7) *dst++ = (LOOKUP[src[4]] << 7) | (LOOKUP[src[5]] << 2) | (LOOKUP[src[6]] >> 3);
-
-	*dst = '\0';
 	return 0;
 }
 
@@ -162,9 +158,12 @@ b32d(char *dst, const char *src, size_t inlen)
 #define b32_is(buf, in, out) do {\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b32e(buf, in, strlen(in)) == 0, "b32e(" in ") should succeed"); \
+	buf[b32elen(strlen(in))] = '\0'; \
 	is(buf, out, "[" in "] is [" out "] in base32"); \
+	\
 	memset(buf, 0, sizeof(buf)); \
 	ok(b32d(buf, out, strlen(out)) == 0, "b32d(" out ") should succeed"); \
+	buf[b32dlen(strlen(out))] = '\0'; \
 	is(buf, in, "[" out "] in base32 is [" in "]"); \
 } while (0)
 
@@ -177,6 +176,7 @@ b32d(char *dst, const char *src, size_t inlen)
 	memset(buf, 0, sizeof(buf)); \
 	ok(b32e(buf, s, strlen(s)) == 0, "b32e(" s ") should succeed"); \
 	ok(b32d(buf, buf, strlen(buf)) == 0, "b32d(b32e(" s ")) should also succeed"); \
+	buf[b32dlen(b32elen(strlen(s)))] = '\0'; \
 	is(buf, s, "D(E(s)) should equal (s)"); \
 } while (0)
 
