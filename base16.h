@@ -1,5 +1,5 @@
-#ifndef __NETIP_BASE16_H
-#define __NETIP_BASE16_H
+#ifndef BASE16_H
+#define BASE16_H
 
 static inline size_t
 b16elen(size_t dlen) {

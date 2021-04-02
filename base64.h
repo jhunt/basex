@@ -1,5 +1,5 @@
-#ifndef __NETIP_BASE64_H
-#define __NETIP_BASE64_H
+#ifndef BASE64_H
+#define BASE64_H
 
 static inline size_t
 b64elen(size_t dlen) {

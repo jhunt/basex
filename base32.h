@@ -1,5 +1,5 @@
-#ifndef __NETIP_BASE32_H
-#define __NETIP_BASE32_H
+#ifndef BASE32_H
+#define BASE32_H
 
 static inline size_t
 b32elen(size_t dlen) {
