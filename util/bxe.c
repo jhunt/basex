@@ -6,6 +6,7 @@
 #include "base16.h"
 #include "base32.h"
 #include "base64.h"
+#include "base85.h"
 
 typedef int(*encode)(char *, const char *, size_t);
 typedef size_t(*enclen)(size_t);
@@ -48,6 +49,10 @@ int main(int argc, char **argv)
 	} else if (strcmp(argv[1], "64") == 0) {
 		if (argc == 3) bxa(64, b64a, argv[2]);
 		bxe = b64e; bxelen = b64elen;
+
+	} else if (strcmp(argv[1], "85") == 0) {
+		if (argc == 3) bxa(85, b85a, argv[2]);
+		bxe = b85e; bxelen = b85elen;
 
 	} else {
 		fprintf(stderr, "bxe: unrecognized base '%s'\n", argv[1]);
