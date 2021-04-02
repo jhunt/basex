@@ -1,6 +1,9 @@
 #ifndef BASE32_H
 #define BASE32_H
 
+#define BASE32_ALPHA     "abcdefghijklmnopqrstuvwxyz234567"
+#define BASE32_HEX_ALPHA "0123456789abcdefghijklmnopqrstuv"
+
 static inline size_t
 b32elen(size_t dlen) {
 	return 8 * (dlen / 5) + (dlen % 5);

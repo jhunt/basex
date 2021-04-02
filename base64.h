@@ -1,6 +1,9 @@
 #ifndef BASE64_H
 #define BASE64_H
 
+#define BASE64_ALPHA     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+#define BASE64_URL_ALPHA "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+
 static inline size_t
 b64elen(size_t dlen) {
 	return 8 * (dlen / 5) + (dlen % 5);
