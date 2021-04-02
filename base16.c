@@ -87,13 +87,16 @@ b16d(char *dst, const char *src, size_t inlen)
 #include "ctap.h"
 
 #define b16_is(buf, in, out) do {\
+	memset(buf, 0, sizeof(buf)); \
 	ok(b16e(buf, in, strlen(in)) == 0, "b16e(" in ") should succeed"); \
 	is(buf, out, "[" in "] is [" out "] in base16"); \
+	memset(buf, 0, sizeof(buf)); \
 	ok(b16d(buf, out, strlen(out)) == 0, "b16d(" out ") should succeed"); \
 	is(buf, in, "[" out "] in base16 is [" in "]"); \
 } while (0)
 
 #define b16_noop(buf, s) do {\
+	memset(buf, 0, sizeof(buf)); \
 	ok(b16e(buf, s, strlen(s)) == 0, "b16e(" s ") should succeed"); \
 	ok(b16d(buf, buf, strlen(buf)) == 0, "b16d(b16e(" s ")) should also succeed"); \
 	is(buf, s, "D(E(s)) should equal (s)"); \

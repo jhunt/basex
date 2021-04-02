@@ -125,13 +125,16 @@ b64d(char *dst, const char *src, size_t inlen)
 #include "ctap.h"
 
 #define b64_is(buf, in, out) do {\
+	memset(buf, 0, sizeof(buf)); \
 	ok(b64e(buf, in, strlen(in)) == 0, "b64e(" in ") should succeed"); \
 	is(buf, out, "[" in "] is [" out "] in base64"); \
+	memset(buf, 0, sizeof(buf)); \
 	ok(b64d(buf, out, strlen(out)) == 0, "b64d(" out ") should succeed"); \
 	is(buf, in, "[" out "] in base64 is [" in "]"); \
 } while (0)
 
 #define b64_noop(buf, s) do {\
+	memset(buf, 0, sizeof(buf)); \
 	ok(b64e(buf, s, strlen(s)) == 0, "b64e(" s ") should succeed"); \
 	ok(b64d(buf, buf, strlen(buf)) == 0, "b64d(b64e(" s ")) should also succeed"); \
 	is(buf, s, "D(E(s)) should equal (s)"); \

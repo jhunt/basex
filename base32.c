@@ -160,13 +160,16 @@ b32d(char *dst, const char *src, size_t inlen)
 #include "ctap.h"
 
 #define b32_is(buf, in, out) do {\
+	memset(buf, 0, sizeof(buf)); \
 	ok(b32e(buf, in, strlen(in)) == 0, "b32e(" in ") should succeed"); \
 	is(buf, out, "[" in "] is [" out "] in base32"); \
+	memset(buf, 0, sizeof(buf)); \
 	ok(b32d(buf, out, strlen(out)) == 0, "b32d(" out ") should succeed"); \
 	is(buf, in, "[" out "] in base32 is [" in "]"); \
 } while (0)
 
 #define b32_noop(buf, s) do {\
+	memset(buf, 0, sizeof(buf)); \
 	ok(b32e(buf, s, strlen(s)) == 0, "b32e(" s ") should succeed"); \
 	ok(b32d(buf, buf, strlen(buf)) == 0, "b32d(b32e(" s ")) should also succeed"); \
 	is(buf, s, "D(E(s)) should equal (s)"); \
