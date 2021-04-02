@@ -1,0 +1,115 @@
+#include <stddef.h>
+#include <string.h>
+
+#include "base16.h"
+
+#define MASK 0x0f
+
+static char ALPHA[16] = "0123456789abcdef";
+static char LOOKUP[256] = {
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+};
+
+void b16a(const char *alpha) {
+	const char *c;
+	memset(LOOKUP, 0, sizeof(LOOKUP));
+	for (c = alpha; *c; c++) {
+		ALPHA[c-alpha] = *c;
+		LOOKUP[*c] = c-alpha;
+	}
+}
+
+/*
+
+          [0]
+   1b: 01234567
+
+   2b: 0123 4567
+         ^    ^
+         |    `--- ([0]     ) & 0x0f
+         `-------- ([0] >> 4) & 0x0f
+
+    01234567
+    0123----  [0] >> 4
+
+    01234567
+    ----4567  [0]
+
+
+    0123 4567
+    0123 4567   [0] << 4 | [1]
+
+ */
+
+
+int
+b16e(char *dst, const char *src, size_t inlen)
+{
+	for (; inlen > 0; src += 1, inlen -= 1) {
+		*dst++ = ALPHA[ ( src[0] >> 4 ) & MASK];
+		*dst++ = ALPHA[ ( src[0]      ) & MASK];
+	}
+
+	*dst = '\0';
+	return 0;
+}
+
+int
+b16d(char *dst, const char *src, size_t inlen)
+{
+	if (inlen % 2 != 0)
+		return 1;
+
+	for (; inlen >= 2; src += 2, inlen -= 2) {
+		*dst++ = (LOOKUP[src[0]] << 4) | (LOOKUP[src[1]]);
+	}
+
+	*dst = '\0';
+	return 0;
+}
+
+#ifdef O_TESTS
+#include "ctap.h"
+
+#define b16_is(buf, in, out) do {\
+	ok(b16e(buf, in, strlen(in)) == 0, "b16e(" in ") should succeed"); \
+	is(buf, out, "[" in "] is [" out "] in base16"); \
+	ok(b16d(buf, out, strlen(out)) == 0, "b16d(" out ") should succeed"); \
+	is(buf, in, "[" out "] in base16 is [" in "]"); \
+} while (0)
+
+#define b16_noop(buf, s) do {\
+	ok(b16e(buf, s, strlen(s)) == 0, "b16e(" s ") should succeed"); \
+	ok(b16d(buf, buf, strlen(buf)) == 0, "b16d(b16e(" s ")) should also succeed"); \
+	is(buf, s, "D(E(s)) should equal (s)"); \
+} while (0)
+
+TESTS {
+	char buf[256];
+
+	b16_is(buf, "f",      "66");
+	b16_is(buf, "fo",     "666f");
+	b16_is(buf, "foo",    "666f6f");
+	b16_is(buf, "foob",   "666f6f62");
+	b16_is(buf, "fooba",  "666f6f6261");
+	b16_is(buf, "foobar", "666f6f626172");
+
+	b16_noop(buf, "people say nothing is impossible, but i do nothing every day.");
+	b16_noop(buf, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+}
+#endif
