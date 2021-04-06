@@ -97,14 +97,14 @@ b32e(char *dst, const char *src, size_t inlen)
 {
 	char buf[5];
 	for (; inlen >= 5; src += 5, inlen -= 5) {
-		*dst++ = ALPHA[ (                 src[0] >> 3 ) & MASK];
-		*dst++ = ALPHA[ ((src[0] << 2) | (src[1] >> 6)) & MASK];
-		*dst++ = ALPHA[ (                (src[1] >> 1)) & MASK];
-		*dst++ = ALPHA[ ((src[1] << 4) | (src[2] >> 4)) & MASK];
-		*dst++ = ALPHA[ ((src[2] << 1) | (src[3] >> 7)) & MASK];
-		*dst++ = ALPHA[ (                (src[3] >> 2)) & MASK];
-		*dst++ = ALPHA[ ((src[3] << 3) | (src[4] >> 5)) & MASK];
-		*dst++ = ALPHA[ (                 src[4]      ) & MASK];
+		*dst++ = ALPHA[ (                         (0xf8 & src[0]) >> 3) & MASK];
+		*dst++ = ALPHA[ ((0x07 & src[0]) << 2) | ((0xc0 & src[1]) >> 6) & MASK];
+		*dst++ = ALPHA[ (                         (0x7f & src[1]) >> 1) & MASK];
+		*dst++ = ALPHA[ ((0x01 & src[1]) << 4) | ((0xf0 & src[2]) >> 4) & MASK];
+		*dst++ = ALPHA[ ((0x0f & src[2]) << 1) | ((0x80 & src[3]) >> 7) & MASK];
+		*dst++ = ALPHA[ (                         (0x7c & src[3]) >> 2) & MASK];
+		*dst++ = ALPHA[ ((0x03 & src[3]) << 3) | ((0xe0 & src[4]) >> 5) & MASK];
+		*dst++ = ALPHA[ (                         (0x1f & src[4])     ) & MASK];
 	}
 
 	if (inlen >= 1) {
@@ -112,20 +112,21 @@ b32e(char *dst, const char *src, size_t inlen)
 		   buffer for our required 0-padding. */
 		memset(buf, 0, 5);
 		memcpy(buf, src, inlen);
+		src = buf;
 
-		*dst++ = ALPHA[ (                 buf[0] >> 3 ) & MASK];
-		*dst++ = ALPHA[ ((buf[0] << 2) | (buf[1] >> 6)) & MASK];
+		*dst++ = ALPHA[ (                         (0xf8 & src[0]) >> 3) & MASK];
+		*dst++ = ALPHA[ ((0x07 & src[0]) << 2) | ((0xc0 & src[1]) >> 6) & MASK];
 	}
 	if (inlen >= 2) {
-		*dst++ = ALPHA[ (                (buf[1] >> 1)) & MASK];
-		*dst++ = ALPHA[ ((buf[1] << 4) | (buf[2] >> 4)) & MASK];
+		*dst++ = ALPHA[ (                         (0x7f & src[1]) >> 1) & MASK];
+		*dst++ = ALPHA[ ((0x01 & src[1]) << 4) | ((0xf0 & src[2]) >> 4) & MASK];
 	}
 	if (inlen >= 3) {
-		*dst++ = ALPHA[ ((buf[2] << 1) | (buf[3] >> 7)) & MASK];
+		*dst++ = ALPHA[ ((0x0f & src[2]) << 1) | ((0x80 & src[3]) >> 7) & MASK];
 	}
 	if (inlen >= 4) {
-		*dst++ = ALPHA[ (                (buf[3] >> 2)) & MASK];
-		*dst++ = ALPHA[ ((buf[3] << 3) | (buf[4] >> 5)) & MASK];
+		*dst++ = ALPHA[ (                         (0x7c & src[3]) >> 2) & MASK];
+		*dst++ = ALPHA[ ((0x03 & src[3]) << 3) | ((0xe0 & src[4]) >> 5) & MASK];
 	}
 	return 0;
 }
@@ -192,6 +193,7 @@ TESTS {
 	b32_is(buf, "foob",   "cpnmuog");
 	b32_is(buf, "fooba",  "cpnmuoj1");
 	b32_is(buf, "foobar", "cpnmuoj1e8");
+	b32_is(buf, "\xbb\x68\x4a\x7c\x13\xa4\x77\xf4\x05\x18\xa4\x80", "ndk4kv0jkhrv818oki00");
 
 	b32_noop(buf, "people say nothing is impossible, but i do nothing every day.");
 	b32_noop(buf, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");

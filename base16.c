@@ -3,8 +3,6 @@
 
 #include "base16.h"
 
-#define MASK 0x0f
-
 static char ALPHA[16] = "0123456789abcdef";
 static char LOOKUP[256] = {
 	   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -61,8 +59,8 @@ int
 b16e(char *dst, const char *src, size_t inlen)
 {
 	for (; inlen > 0; src += 1, inlen -= 1) {
-		*dst++ = ALPHA[ ( src[0] >> 4 ) & MASK];
-		*dst++ = ALPHA[ ( src[0]      ) & MASK];
+		*dst++ = ALPHA[(0xf0 & src[0]) >> 4];
+		*dst++ = ALPHA[(0x0f & src[0])     ];
 	}
 	return 0;
 }

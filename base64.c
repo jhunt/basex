@@ -77,10 +77,10 @@ b64e(char *dst, const char *src, size_t inlen)
 {
 	char buf[3];
 	for (; inlen >= 3; src += 3, inlen -= 3) {
-		*dst++ = ALPHA[ (                 src[0] >> 2 ) & MASK];
-		*dst++ = ALPHA[ ((src[0] << 4) | (src[1] >> 4)) & MASK];
-		*dst++ = ALPHA[ ((src[1] << 2) | (src[2] >> 6)) & MASK];
-		*dst++ = ALPHA[ (                 src[2]      ) & MASK];
+		*dst++ = ALPHA[ (                         (0xfc & src[0]) >> 2) & MASK];
+		*dst++ = ALPHA[ ((0x03 & src[0]) << 4) | ((0xf0 & src[1]) >> 4) & MASK];
+		*dst++ = ALPHA[ ((0x0f & src[1]) << 2) | ((0xc0 & src[2]) >> 6) & MASK];
+		*dst++ = ALPHA[ (                         (0x3f & src[2])     ) & MASK];
 	}
 
 	if (inlen >= 1) {
@@ -88,15 +88,16 @@ b64e(char *dst, const char *src, size_t inlen)
 		   buffer for our required 0-padding. */
 		memset(buf, 0, 4);
 		memcpy(buf, src, inlen);
+		src = buf;
 
-		*dst++ = ALPHA[ (                 src[0] >> 2 ) & MASK];
-		*dst++ = ALPHA[ ((src[0] << 4) | (src[1] >> 4)) & MASK];
+		*dst++ = ALPHA[ (                         (0xfc & src[0]) >> 2) & MASK];
+		*dst++ = ALPHA[ ((0x03 & src[0]) << 4) | ((0xf0 & src[1]) >> 4) & MASK];
 	}
 	if (inlen >= 2) {
-		*dst++ = ALPHA[ ((src[1] << 2) | (src[2] >> 6)) & MASK];
+		*dst++ = ALPHA[ ((0x0f & src[1]) << 2) | ((0xc0 & src[2]) >> 6) & MASK];
 	}
 	if (inlen >= 3) {
-		*dst++ = ALPHA[ (                 src[2]      ) & MASK];
+		*dst++ = ALPHA[ (                         (0x3f & src[2])     ) & MASK];
 	}
 	return 0;
 }
